@@ -1,0 +1,50 @@
+.wheel-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .wheel {
+    width: 300px;
+    height: 300px;
+    border: 2px solid #333;
+    border-radius: 50%;
+    position: relative;
+    transform: rotate(0deg);
+    transition: none;
+  }
+  
+  .wheel-spin {
+    transition: transform 3s ease-in-out;
+  }
+  
+  .wheel-segment {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    transform: rotate(0deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    background: #f2f2f2;
+    border-radius: 50%;
+    text-align: center;
+  }
+  
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
