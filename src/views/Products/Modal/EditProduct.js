@@ -188,7 +188,7 @@ export const EditProduct = ({ products, show, setShow }) => {
                 name='price'
                 type='number'
                 render={({ field }) => (
-                  <Input {...field} id='price'  invalid={errors.price && true} />
+                  <Input {...field} id='price' type='number' step='any' invalid={errors.price && true} />
                 )}
               />
               {errors.price && <FormFeedback>{errors.price.message}</FormFeedback>}
@@ -203,7 +203,7 @@ export const EditProduct = ({ products, show, setShow }) => {
                 name='purchasePrice'
                 type='number'
                 render={({ field }) => (
-                  <Input {...field} id='purchasePrice' invalid={errors.purchasePrice && true} />
+                  <Input {...field} id='purchasePrice' type='number' step='any' invalid={errors.purchasePrice && true} />
                 )}
               />
               {errors.purchasePrice && <FormFeedback>{errors.purchasePrice.message}</FormFeedback>}
@@ -218,7 +218,7 @@ export const EditProduct = ({ products, show, setShow }) => {
                 name='quantity'
                 type='number'
                 render={({ field }) => (
-                  <Input {...field} id='quantity' placeholder='100' invalid={errors.quantity && true} />
+                  <Input {...field} id='quantity' type='number' placeholder='100' invalid={errors.quantity && true} />
                 )}
               />
               {errors.quantity && <FormFeedback>{errors.quantity.message}</FormFeedback>}
