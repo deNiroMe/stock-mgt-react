@@ -41,7 +41,7 @@ const Purchases = ({active}) => {
       name: t('statementLines.table.purchase'),
       minWidth: '15%',
       selector: row => row.referenceId,
-      cell: row => <span>{`REF${row.referenceId}`}</span>
+      cell: row => <span>{`REF-${row.id}`}</span>
     },
     {
       name: t('statementLines.table.date'),
@@ -83,10 +83,8 @@ const Purchases = ({active}) => {
   ]
 
   useEffect(() => {   
-    console.log('purchases')
     dispatch(      
       getPaginatedOperations({
-        q: value,
         sort: sort,
         page: currentPage,
         perPage: rowsPerPage,
@@ -103,7 +101,6 @@ const Purchases = ({active}) => {
     const isFiltered = Object.keys(filters).some(function (k) {
       return filters[k].length > 0
     })
-    console.log(store.filteredPurchases)
     if (store.filteredPurchases.length > 0) {
       return store.filteredPurchases
     } else if (store.filteredPurchases.length === 0 && isFiltered) {
@@ -118,7 +115,6 @@ const Purchases = ({active}) => {
     setSortColumn(column.sortField)
     dispatch(
       getPaginatedOperations({
-        q: value,
         page: currentPage,
         sort: sortDirection,
         perPage: rowsPerPage,
@@ -129,7 +125,6 @@ const Purchases = ({active}) => {
   }
 
   const handlePagination = page => {
-    console.log(page.selected)
     setCurrentPage(page.selected + 1)
     dispatch(      
       getPaginatedOperations({

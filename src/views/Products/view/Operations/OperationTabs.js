@@ -1,6 +1,6 @@
 // ** React Imports
 import { Fragment } from 'react'
-import { useEffect, useLayoutEffect } from 'react'
+import { useLayoutEffect } from 'react'
 
 // ** translation
 import { useTranslation } from 'react-i18next'
@@ -25,7 +25,6 @@ const OperationTabs = ({ active, toggleTab, sales, purchases }) => {
   const dispatch = useDispatch()
 
   useLayoutEffect(() => {   
-    console.log('op tabs')
     dispatch( getOperations() )
   }, [dispatch])
 

@@ -14,7 +14,7 @@ import { ChevronDown, Eye } from 'react-feather'
 import { Card, UncontrolledTooltip } from 'reactstrap'
 
 // ** Store & Actions
-import { getOperations, getPaginatedOperations } from '../../store/operations'
+import { getPaginatedOperations } from '../../store/operations'
 import { useDispatch, useSelector } from 'react-redux'
 
 // ** Styles
@@ -36,7 +36,7 @@ const Sales = ({type, active}) => {
   const [value] = useState('')
   const [rowsPerPage] = useState(7)
   const [sort, setSort] = useState('desc')
-  const [sortColumn, setSortColumn] = useState('date')
+  const [sortColumn, setSortColumn] = useState('id')
   const [currentPage, setCurrentPage] = useState(1)
 
   const label = type == 'PURCHASE' ? t('statementLines.table.purchase') : t('statementLines.table.invoice')
@@ -46,7 +46,7 @@ const Sales = ({type, active}) => {
       name: label,
       minWidth: '15%',
       selector: row => row.referenceId,
-      cell: row => <span>{`REF${row.referenceId}`}</span>
+      cell: row => <span>{`REF-${row.id}`}</span>
     },
     {
       name: t('statementLines.table.date'),
@@ -89,10 +89,8 @@ const Sales = ({type, active}) => {
 
 
   useEffect(() => {   
-    console.log('3')
     dispatch(      
       getPaginatedOperations({
-        q: value,
         sort: sort,
         page: currentPage,
         perPage: rowsPerPage,
@@ -110,7 +108,6 @@ const Sales = ({type, active}) => {
     const isFiltered = Object.keys(filters).some(function (k) {
       return filters[k].length > 0
     })
-    console.log(store.filteredSales)
     if (store.filteredSales.length > 0) {
       return store.filteredSales.slice(0, rowsPerPage)
     } else if (store.filteredSales.length === 0 && isFiltered) {
@@ -125,7 +122,6 @@ const Sales = ({type, active}) => {
     setSortColumn(column.sortField)
     dispatch(
       getPaginatedOperations({
-        q: value,
         page: currentPage,
         sort: sortDirection,
         perPage: rowsPerPage,
@@ -135,17 +131,19 @@ const Sales = ({type, active}) => {
     )
   }
 
+  
+
   const handlePagination = page => {
+    setCurrentPage(page.selected + 1)
     dispatch(      
       getPaginatedOperations({
         sort: sort,
         sortColumn: sortColumn,
-        page: currentPage,
+        page: page.selected + 1,
         perPage: rowsPerPage,        
         type: 'SALE'
       })      
     )
-    setCurrentPage(page.selected + 1)
   }
 
   const CustomPagination = () => {
@@ -177,10 +175,8 @@ const Sales = ({type, active}) => {
         <div className='invoice-list-dataTable react-dataTable'>
           <DataTable
             noHeader
-            subHeader
-            sortServer
             pagination
-            responsive
+            sortServer
             paginationServer
             columns={columns}
             onSort={handleSort}

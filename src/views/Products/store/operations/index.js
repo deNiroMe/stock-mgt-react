@@ -27,41 +27,41 @@ export const getPaginatedOperations = createAsyncThunk(
   'operations/getPaginatedOperations',
   async (config, { getState }) => {
 
+    const state = getState().operations; // Get the current state of operations
+
     const {
-      q = '',
       page = 1,
       perPage = 10,
       sort = 'asc',
       sortColumn = 'id',
       type = 'PURCHASE'
-    } = config
-    
-    let operations = type == 'SALE' ? getState().operations.sales : getState().operations.purchases
-    const dataAsc = [...operations].sort((a, b) => { return (a[sortColumn] < b[sortColumn] ? -1 : 1) })
-    let dataToFilter = sort === 'asc' ? dataAsc : dataAsc.reverse()
-    let paginateArray = dataToFilter.slice((page - 1) * perPage, page * perPage)
+    } = config;
 
-    if (type == 'SALE') {
-      return {
-        sales: operations,
-        totalSales: operations.length,
-        filteredSales: paginateArray,
-        purchases: operationState.purchases,
-        totalPurchases: operationState.totalPurchases,
-        filteredPurchases: operationState.filteredPurchases,
-        params: config
-      }
-    } else {
-      return {
-        purchases: operations,
-        totalPurchases: operations.length,
-        filteredPurchases: paginateArray,
-        sales: operationState.sales,
-        totalSales: operationState.totalSales,
-        filteredSales: operationState.filteredSales,
-        params: config
-      }
-    }
+    let operations = type === 'SALE' ? state.sales : state.purchases;
+
+    const dataAsc = [...operations].sort((a, b) => (a[sortColumn] < b[sortColumn] ? -1 : 1));
+    let dataToFilter = sort === 'asc' ? dataAsc : [...dataAsc].reverse();
+    let paginateArray = dataToFilter.slice((page - 1) * perPage, page * perPage);
+
+    return type === 'SALE'
+      ? {
+          sales: operations,
+          totalSales: operations.length,
+          filteredSales: paginateArray,
+          purchases: state.purchases,
+          totalPurchases: state.totalPurchases,
+          filteredPurchases: state.filteredPurchases,
+          params: config
+        }
+      : {
+          purchases: operations,
+          totalPurchases: operations.length,
+          filteredPurchases: paginateArray,
+          sales: state.sales,
+          totalSales: state.totalSales,
+          filteredSales: state.filteredSales,
+          params: config
+        };
 
   })
 
