@@ -41,6 +41,7 @@ const ClientView = lazy(() => import("../../views/Clients/view/index"))
 const Suppliers = lazy(() => import("../../views/Suppliers/Suppliers"))
 const SupplierView = lazy(() => import("../../views/Suppliers/view/index"))
 const Payments = lazy(() => import("../../views/Payments/Payments"))
+const CreatePayment = lazy(() => import("../../views/Payments/CreatePayment/index"))
 const Users = lazy(() => import("../../views/Users/Users"))
 const Sales = lazy(() => import("../../views/Sales/Sales"))
 const InvoiceView = lazy(() => import("../../views/Sales/view/index"))
@@ -135,6 +136,10 @@ const Routes = [
   {
     path: "/payments",
     element: <Payments />
+  },
+  {
+    path: "/create-payment",
+    element: <CreatePayment />
   },
   {
     path: "/benefits",

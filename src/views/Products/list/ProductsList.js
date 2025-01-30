@@ -3,18 +3,19 @@ import { useState, useEffect, Fragment } from 'react'
 import { Link } from 'react-router-dom'
 
 // ** Store & Actions
-import { getAllData, getPaginatedData, setElementToEdit } from '../store'
+import { getAllData, getPaginatedData, setElementToEdit } from '../store/products'
 import { useSelector, useDispatch } from 'react-redux'
 
 // ** Third Party Components
 import { ChevronDown, FileText, Archive } from 'react-feather'
+import { useTranslation } from 'react-i18next'
 import ReactPaginate from 'react-paginate'
 import DataTable from 'react-data-table-component'
-import { useTranslation } from 'react-i18next'
 
 // ** Reactstrap Imports
 import { Card, Row, Col,  Input, Button, UncontrolledTooltip } from 'reactstrap'
 
+// ** Custom components imports
 import { AddProduct } from '../Modal/AddProduct'
 import { EditProduct } from '../Modal/EditProduct'
 
@@ -22,8 +23,7 @@ import { EditProduct } from '../Modal/EditProduct'
 import '@styles/react/libs/tables/react-dataTable-component.scss'
 
 // ** Table Header
-const CustomHeader = ({ toggleModal, handlePerPage, rowsPerPage, handleFilter, searchTerm, t }) => {
-  
+const CustomHeader = ({ toggleModal, handlePerPage, rowsPerPage, handleFilter, searchTerm, t }) => {  
   return (
     <div className='invoice-list-table-header w-100 me-1 ms-50 mt-2 mb-75'>
       <Row>
@@ -83,7 +83,7 @@ const ProductsList = () => {
   const [sort, setSort] = useState('desc')
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [sortColumn, setSortColumn] = useState('name')
+  const [sortColumn, setSortColumn] = useState('id')
   const [rowsPerPage, setRowsPerPage] = useState(10)
 
   // ** Store Vars
@@ -96,30 +96,35 @@ const ProductsList = () => {
     {
       name: t('products.table.id'),
       sortable: true,
+      sortField: 'id',
       width: '10%',
       selector: row => row.id
     },
     {
       name: t('products.table.name'),
       width: '30%',
+      sortField: 'name',
       sortable: true,
       selector: row => row.name
     },
     {
       name: t('products.table.date'),
       width: '20%',
+      sortField: 'date',
       sortable: true,
       selector: row => row.date
     },
     {
       name: t('products.table.price'),
       width: '15%',
+      sortField: 'price',
       sortable: true,
-      selector: row => row.price
+      cell: row => row.price
     },
     {
       name: t('products.table.quantity'),
       width: '15%',
+      sortField: 'quantity',
       sortable: true,
       selector: row => row.quantity
     },
@@ -157,23 +162,23 @@ const ProductsList = () => {
   useEffect(() => {
     dispatch(
       getAllData()
-    )
-  }, [dispatch])
+    )    
+  }, [dispatch, store.products.length])
 
   // ** Table data to render
   const dataToRender = () => {
     const filters = {
       q: searchTerm
     }
-
     const isFiltered = Object.keys(filters).some(function (k) {
       return filters[k].length > 0
     })
-
-    if (store.products.length === 0 && isFiltered) {
+    if (store.filteredProducts.length > 0) {
+      return store.filteredProducts
+    } else if (store.filteredProducts.length === 0 && isFiltered) {
       return []
     } else {
-      return store.products.slice(0, rowsPerPage)
+      return store.filteredProducts.slice(0, rowsPerPage)
     }
   }
 
@@ -183,7 +188,7 @@ const ProductsList = () => {
         sort: sort,
         sortColumn: sortColumn,
         q: searchTerm,
-        page: currentPage,
+        page: page.selected + 1,
         perPage: rowsPerPage
       })      
     )
@@ -238,10 +243,8 @@ const ProductsList = () => {
     )
   }
 
-  const CustomPagination = () => {
-    
+  const CustomPagination = () => {    
     const count = Number(Math.ceil(store.total / rowsPerPage))
-    
     return (
       <ReactPaginate
         previousLabel={''}
@@ -267,16 +270,14 @@ const ProductsList = () => {
         <div className='react-dataTable'>
           <DataTable
             noHeader
-            subHeader
-            sortServer
             pagination
-            responsive
+            sortServer
             paginationServer
+            subHeader={true}
             columns={columns}
-            data={dataToRender()}
             onSort={handleSort}
+            data={dataToRender()}
             paginationComponent={CustomPagination}
-            className='react-dataTable'
             sortIcon={<ChevronDown size={10} />}
             subHeaderComponent={
               <CustomHeader

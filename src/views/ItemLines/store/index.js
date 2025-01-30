@@ -1,6 +1,9 @@
 // ** Redux Imports
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
+// ** axios 
+import axios from 'axios'
+
 import { data } from '../data/data'
 
 export const setElementToEdit = createAsyncThunk(
@@ -93,9 +96,10 @@ export const getInvoiceItems = createAsyncThunk(
 
 export const getAllData = createAsyncThunk(
   'items/getAllData', 
-  async (type) => {
-    let filteredData = data.items.filter(
-      item => item.type == type
+  async (type) => {   
+    const response = await axios.get('http://localhost:8090/api/v1/operations')
+    let filteredData = response.data.filter(
+      item => item.type === type
     )
     return { 
       items: filteredData, 
@@ -105,8 +109,10 @@ export const getAllData = createAsyncThunk(
 
 export const getPaginatedData = createAsyncThunk(
   'items/getPaginatedData', 
-  async (config) => { 
+  async (config, { getState }) => { 
         
+      const items =  getState().items.items
+      console.log(items)
       const {
         q = '',
         page = 1,
@@ -116,18 +122,18 @@ export const getPaginatedData = createAsyncThunk(
         type = 'ALL'
       } = config      
       
+      
       const queryLowered = q.toLowerCase()  
 
-      const dataAsc = [...data.items].sort((a, b) => {
+      const dataAsc = [...items].sort((a, b) => {
         return (a[sortColumn] < b[sortColumn] ? -1 : 1)
       })
-
+      
       let dataToFilter = sort === 'asc' ? dataAsc : dataAsc.reverse()
       let filteredData = dataToFilter.filter(
-        item => item.name.toLowerCase().includes(queryLowered) && item.type == type
+        item => item.product.name.toLowerCase().includes(queryLowered) && item.type == type
       )
       let paginateArray = filteredData.slice((page - 1) * perPage, page * perPage)
-      
       return {
           total: filteredData.length,
           items: paginateArray

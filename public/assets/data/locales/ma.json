@@ -28,6 +28,7 @@
   "app.sidebar.suppliers": "الموزعون",
   "app.sidebar.users": "المستخدمون",
   "app.sidebar.payments": "الدفوعات",
+  "app.sidebar.create_payment": "تسجيل عملية دفع",
   "app.cart.table.title" : "produits Sélectionnés",
   "app.cart.table.number" : "الرقم #",
   "app.cart.table.product" : "Produit",

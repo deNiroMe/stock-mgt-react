@@ -24,11 +24,12 @@
   "app.sidebar.sales": "Ventes",
   "app.sidebar.benifits": "Benefices",
   "app.sidebar.purchases": "Achats",
-  "app.sidebar.new_purchase": "Nouvelle Achat",
+  "app.sidebar.new_purchase": "Nouvel Achat",
   "app.sidebar.clients": "Clients",
   "app.sidebar.suppliers": "Fournisseurs",
   "app.sidebar.users": "Utilisateurs",
   "app.sidebar.payments": "Paiements",
+  "app.sidebar.create_payment": "Nouveau Paiement",
 
   "cart.form.product.name" : "Sélectionner un produit",
   "cart.form.product.quantity" : "Quantité",

@@ -2,22 +2,23 @@
 import { useEffect, useState } from 'react'
 
 // ** Reactstrap Imports
-import { Row, Col, Form, Button, Modal, Input, Label, ModalBody, ModalHeader, FormFeedback } from 'reactstrap'
 import Select from 'react-select'
 import { useTranslation } from 'react-i18next'
+import { Row, Col, Form, Button, Modal, Input, Label, ModalBody, ModalHeader, FormFeedback } from 'reactstrap'
 
 // ** Store & Actions
+import { add } from '../store/products'
 import { useDispatch, useSelector } from 'react-redux'
-import { add } from '../store'
 
 // ** Third Party Components
 import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
 import { useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
+import withReactContent from 'sweetalert2-react-content'
 
 // ** Utils
 import { selectThemeColors } from '@utils'
+import { formatDate } from '../utils/utils.js'
 
 export const AddProduct = ({ products, show, setShow }) => {
 
@@ -25,9 +26,8 @@ export const AddProduct = ({ products, show, setShow }) => {
   const [options, setOptions] = useState([])
 
   const dispatch = useDispatch()
-
-  const { t } = useTranslation()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const MySwal = withReactContent(Swal)
 
@@ -43,7 +43,8 @@ export const AddProduct = ({ products, show, setShow }) => {
       name: '',
       price: 0.0,
       purchasePrice: 0.0,
-      quantity: 0
+      quantity: 0,
+      suppliers: []
     }
   })
 
@@ -51,30 +52,45 @@ export const AddProduct = ({ products, show, setShow }) => {
     const options = suppliers.map(p => {
       return { value: p.id, label: p.name }
     })
-    setValue('suppliers', options[0])
-    setValue('id', Math.floor(Math.random() * 1000) + 1000)
-    setValue('date', new Date().toLocaleString().substring(0,10))
+    setValue('suppliers', [])
+    setValue('date', formatDate(new Date()))
     setOptions(options)
-  }, [suppliers])
+  }, [dispatch])
 
   const onSubmit = data => {
     if(validateFormdata(data)) {
-      dispatch(add(data))
-      return MySwal.fire({
-        icon: 'success',
-        title: t('products.add.swal.success.title'),
-        text: t('products.add.swal.success.text'),
-        confirmButtonText: t('products.add.swal.confirmButtonText'),
-        customClass: {
-          confirmButton: 'btn btn-success'
+      dispatch(
+        add(data)
+      ).then((action) => {   
+
+        if(action.payload.showError === true){
+          return MySwal.fire({
+            icon: 'error',
+            title: t('products.add.swal.error.title'),
+            text: 'error',
+            confirmButtonText: t('cart.swal.error.confirmButtonText'),
+            customClass: {
+              confirmButton: 'btn btn-danger'
+            }
+          })
+        } else {
+          return MySwal.fire({
+            icon: 'success',
+            title: t('products.add.swal.success.title'),
+            text: t('products.add.swal.success.text'),
+            confirmButtonText: t('products.add.swal.confirmButtonText'),
+            customClass: {
+              confirmButton: 'btn btn-success'
+            }
+          }).then(function () { navigate(`/products/view/${action.payload.product.id}`); })
         }
+        
       })
-      .then(function () { navigate(`/products/`); })
     }
   }
 
   const onSuppliersSelect = (options) => {
-    let selectedSuppliers = options.map(s =>  { return {id : s.value, name: s.label}})
+    let selectedSuppliers = options.map(s =>  { return {id : s.value, name: s.label} })
     setValue('suppliers', selectedSuppliers)
   }
 
@@ -114,8 +130,6 @@ export const AddProduct = ({ products, show, setShow }) => {
       })
       isValid = false
     }
-    console.log(data)
-    console.log(isValid)
     return isValid
   }
 
@@ -124,7 +138,8 @@ export const AddProduct = ({ products, show, setShow }) => {
       name: '',
       price: 0.0,
       purchasePrice: 0.0,
-      quantity: 0
+      quantity: 0,
+      suppliers: []
     })
   }
 
@@ -140,7 +155,7 @@ export const AddProduct = ({ products, show, setShow }) => {
           <Row className='gy-1 pt-75'>
             <Col md={6} xs={12}>
               <Label className='form-label' for='name'>
-                {t('products.form.name')}
+                {t('products.form.name')} 
               </Label>
               <Controller
                 defaultValue=''

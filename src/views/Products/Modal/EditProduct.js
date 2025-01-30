@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 
 // ** Store & Actions
 import { useDispatch, useSelector } from 'react-redux'
-import { edit } from '../store'
+import { edit } from '../store/products'
 
 // ** Third Party Components
 import Swal from 'sweetalert2'
@@ -25,8 +25,8 @@ export const EditProduct = ({ products, show, setShow }) => {
   const product = useSelector(state => state.products.toEditProduct)
   const [options, setOptions] = useState([])
 
-  const dispatch = useDispatch()
   const { t } = useTranslation()
+  const dispatch = useDispatch()
   const navigate = useNavigate()
 
   const MySwal = withReactContent(Swal)
@@ -57,17 +57,32 @@ export const EditProduct = ({ products, show, setShow }) => {
 
   const onSubmit = data => {
     if(validateFormdata(data)) {
-      dispatch(edit(data))
-      return MySwal.fire({
-        icon: 'success',
-        title: t('products.edit.swal.success.title'),
-        text: t('products.edit.swal.success.text'),
-        confirmButtonText: t('products.edit.swal.confirmButtonText'),
-        customClass: {
-          confirmButton: 'btn btn-success'
+      dispatch(
+        edit(data)
+      ).then((action) => {   
+        if(action.payload.showError === true){
+          return MySwal.fire({
+            icon: 'error',
+            title: t('products.add.swal.error.title'),
+            text: 'error',
+            confirmButtonText: t('cart.swal.error.confirmButtonText'),
+            customClass: {
+              confirmButton: 'btn btn-danger'
+            }
+          })
+        } else {
+          return MySwal.fire({
+            icon: 'success',
+            title: t('products.edit.swal.success.title'),
+            text: t('products.edit.swal.success.text'),
+            confirmButtonText: t('products.edit.swal.confirmButtonText'),
+            customClass: {
+              confirmButton: 'btn btn-success'
+            }
+          }).then(function () { navigate(`/products/view/${product.id}`); })
         }
+        
       })
-      .then(function () { navigate(`/products/view/${product.id}`); })
     }
   }
 

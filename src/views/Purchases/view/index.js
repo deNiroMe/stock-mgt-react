@@ -4,7 +4,7 @@ import { useParams, Link } from 'react-router-dom'
 
 // ** Store Actions
 import { find } from '../store'
-import { getInvoiceItems } from '../../Products/ProductStatementLine/store'
+//import { getInvoiceItems } from '../../Products/ProductStatementLine/store'
 import { useSelector, useDispatch } from 'react-redux'
 
 // ** Reactstrap Imports
@@ -27,7 +27,7 @@ const PurchasePreview = () => {
   // * Store
   const dispatch = useDispatch()
   const store = useSelector(state => state.purchases)
-  const items = useSelector(state => state.statementLine)
+  const items = useSelector(state => state.productOperations)
 
   // ** States
   const [sendSidebarOpen, setSendSidebarOpen] = useState(false)
@@ -39,7 +39,7 @@ const PurchasePreview = () => {
 
   // ** Get invoice on mount based on id
   useEffect(() => {
-    dispatch(getInvoiceItems({ reference: id, type: 'PURCHASE' }))
+  //  dispatch(getInvoiceItems({ reference: id, type: 'PURCHASE' }))
     dispatch(find(id))
   }, [dispatch, id]);
 
@@ -47,7 +47,7 @@ const PurchasePreview = () => {
     <div className='invoice-preview-wrapper'>
       <Row className='invoice-preview'>
         <Col xl={9} md={8} sm={12}>
-          <PreviewCard purchase={store.purchase} items={items.statementLines} />
+          <PreviewCard purchase={store.purchase} items={items.productOperations} />
         </Col>
         <Col xl={3} md={4} sm={12}>
           <PreviewActions id={id} setSendSidebarOpen={setSendSidebarOpen} setAddPaymentOpen={setAddPaymentOpen} />

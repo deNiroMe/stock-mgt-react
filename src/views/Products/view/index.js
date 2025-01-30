@@ -3,14 +3,17 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 
 // ** Store & Actions
-import { find, setElementToEdit } from '../store'
+import { find, setElementToEdit } from '../store/products'
 import { useSelector, useDispatch } from 'react-redux'
 
 // ** Reactstrap Imports
 import { Row, Col, Alert } from 'reactstrap'
 
-// ** User View Components
-import ProductsTabs from './Tabs'
+
+// ** Custom Components
+import Sales from './Operations/Sales'
+import Purchases from './Operations/Purchases'
+import ProductsTabs from './Operations/OperationTabs'
 import InfoCard from './InfoCard/InfoCard'
 
 // ** Styles
@@ -18,19 +21,22 @@ import '@styles/react/apps/app-users.scss'
 
 const ProductView = () => {
 
-  // ** Store Vars
+  // ** Store
   const store = useSelector(state => state.products)
-  const dispatch = useDispatch()
   const [active, setActive] = useState('1')
+
+  // ** dispatch
+  const dispatch = useDispatch()
 
   // ** Hooks
   const { id } = useParams()
 
   // ** Get client on mount
   useEffect(() => {
-    console.log(id)
-    dispatch(find(id))
-  }, [dispatch, store.selectedProduct])
+    dispatch(
+      find(id)
+    )
+  }, [dispatch])
 
   const toggleTab = tab => {
     if (active !== tab) {
@@ -38,9 +44,9 @@ const ProductView = () => {
     }
   }
 
-  const editProduct = productId => {   
+  const editProduct = id => {   
     dispatch(      
-      setElementToEdit(productId)      
+      setElementToEdit(id)      
     )
   }
 
@@ -55,7 +61,12 @@ const ProductView = () => {
           />
         </Col>
         <Col xl='8' lg='7' xs={{ order: 0 }} md={{ order: 1, size: 7 }}>
-          <ProductsTabs active={active} toggleTab={toggleTab}/>
+          <ProductsTabs 
+          active={active} 
+          toggleTab={toggleTab}
+          sales={<Sales type = 'SALE' active={active}/>}
+          purchases={<Purchases type = 'PURCHASE'/>}
+          />
         </Col>
       </Row>
     </div>
@@ -63,7 +74,7 @@ const ProductView = () => {
     <Alert color='danger'>
       <h4 className='alert-heading'>Supplier not found</h4>
       <div className='alert-body'>
-      Supplier with id: {id} doesn't exist. Check list of all Users: <Link to='/apps/user/list'>products List</Link>
+        Supplier with id: {id} doesn't exist. Check list of all Users: <Link to='/apps/user/list'>products List</Link>
       </div>
     </Alert>
   )

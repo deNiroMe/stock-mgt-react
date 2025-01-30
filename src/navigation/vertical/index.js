@@ -50,6 +50,12 @@ export default [
     navLink: "/payments"
   },
   {
+    id: "createPayment",
+    title: "app.sidebar.create_payment",
+    icon: <Book size={20} />,
+    navLink: "/create-payment"
+  },
+  {
     id: "clients",
     title: "app.sidebar.clients",
     icon: <Users size={20} />,

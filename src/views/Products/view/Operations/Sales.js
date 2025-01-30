@@ -14,20 +14,23 @@ import { ChevronDown, Eye } from 'react-feather'
 import { Card, UncontrolledTooltip } from 'reactstrap'
 
 // ** Store & Actions
-import { getAllData, getPaginatedData } from '../../../ItemLines/store'
+import { getOperations, getPaginatedOperations } from '../../store/operations'
 import { useDispatch, useSelector } from 'react-redux'
 
 // ** Styles
 import '@styles/react/apps/app-invoice.scss'
 import '@styles/react/libs/tables/react-dataTable-component.scss'
 
-const ProductItemLines = ({type}) => {
+const Sales = ({type, active}) => {
 
+  // ** translation
   const { t } = useTranslation()
 
-  // ** Store Vars
+  // ** Store
+  const store = useSelector(state => state.operations)
+
+  // dispatch
   const dispatch = useDispatch()
-  const store = useSelector(state => state.items)
 
   // ** States
   const [value] = useState('')
@@ -84,19 +87,20 @@ const ProductItemLines = ({type}) => {
     }
   ]
 
-  useEffect(() => {
-    dispatch( getAllData(type) )
+
+  useEffect(() => {   
+    console.log('3')
     dispatch(      
-      getPaginatedData({
-        sort,
-        sortColumn: sortColumn,
+      getPaginatedOperations({
         q: value,
+        sort: sort,
         page: currentPage,
         perPage: rowsPerPage,
-        type: type
+        sortColumn: sortColumn,
+        type: 'SALE'
       })      
     )
-  }, [dispatch, store.items.length])
+  }, [dispatch, active])
 
   const dataToRender = () => {
     const filters = {
@@ -106,13 +110,13 @@ const ProductItemLines = ({type}) => {
     const isFiltered = Object.keys(filters).some(function (k) {
       return filters[k].length > 0
     })
-
-    if (store.items.length > 0) {
-      return store.items.slice(0, rowsPerPage)
-    } else if (store.items.length === 0 && isFiltered) {
+    console.log(store.filteredSales)
+    if (store.filteredSales.length > 0) {
+      return store.filteredSales.slice(0, rowsPerPage)
+    } else if (store.filteredSales.length === 0 && isFiltered) {
       return []
     } else {
-      return store.items.slice(0, rowsPerPage)
+      return store.filteredSales.slice(0, rowsPerPage)
     }
   }
 
@@ -120,25 +124,25 @@ const ProductItemLines = ({type}) => {
     setSort(sortDirection)
     setSortColumn(column.sortField)
     dispatch(
-      getAllData({
+      getPaginatedOperations({
         q: value,
         page: currentPage,
         sort: sortDirection,
         perPage: rowsPerPage,
         sortColumn: column.sortField,        
-        type: type
+        type: 'SALE'
       })
     )
   }
 
   const handlePagination = page => {
     dispatch(      
-      getPaginatedData({
+      getPaginatedOperations({
         sort: sort,
         sortColumn: sortColumn,
         page: currentPage,
-        perPage: rowsPerPage,
-        type: type
+        perPage: rowsPerPage,        
+        type: 'SALE'
       })      
     )
     setCurrentPage(page.selected + 1)
@@ -146,7 +150,7 @@ const ProductItemLines = ({type}) => {
 
   const CustomPagination = () => {
     
-    const count = Number(Math.ceil(store.total / rowsPerPage))
+    const count = Number(Math.ceil(store.totalSales / rowsPerPage))
     
     return (
       <ReactPaginate
@@ -180,10 +184,10 @@ const ProductItemLines = ({type}) => {
             paginationServer
             columns={columns}
             onSort={handleSort}
+            data={dataToRender()}
             sortIcon={<ChevronDown />}
             className='react-dataTable'
             paginationComponent={CustomPagination}
-            data={dataToRender()}
           />
         </div>
       </Card>
@@ -191,4 +195,4 @@ const ProductItemLines = ({type}) => {
   )
 }
 
-export default ProductItemLines
+export default Sales

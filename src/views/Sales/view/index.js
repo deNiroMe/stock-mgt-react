@@ -4,7 +4,7 @@ import { useParams, Link } from 'react-router-dom'
 
 // ** Store Actions
 import { find } from '../store'
-import { getInvoiceItems } from '../../Products/ProductStatementLine/store'
+//import { getInvoiceItems } from '../../Products/ProductStatementLine/store'
 import { useSelector, useDispatch } from 'react-redux'
 
 // ** Reactstrap Imports
@@ -39,7 +39,7 @@ const InvoicePreview = () => {
 
   // ** Get invoice on mount based on id
   useEffect(() => {
-    dispatch(getInvoiceItems({ reference: id, type: 'SALE' }))
+    //dispatch(getInvoiceItems({ reference: id, type: 'SALE' }))
     dispatch(find(id))
   }, [ id]);
 

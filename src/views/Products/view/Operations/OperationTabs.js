@@ -1,5 +1,6 @@
 // ** React Imports
 import { Fragment } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 
 // ** translation
 import { useTranslation } from 'react-i18next'
@@ -10,13 +11,23 @@ import { Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
 // ** Icons Imports
 import { User, Lock } from 'react-feather'
 
-// ** Client Components
-import ProductItemLines from './ProductItemLines/ProductItemLines'
+// ** Store & Actions
+import { getOperations } from '../../store/operations'
+import { useDispatch } from 'react-redux'
 
-const ProductTabs = ({ active, toggleTab }) => {
+
+const OperationTabs = ({ active, toggleTab, sales, purchases }) => {
 
   // ** translation
   const { t } = useTranslation()
+
+  // dispatch
+  const dispatch = useDispatch()
+
+  useLayoutEffect(() => {   
+    console.log('op tabs')
+    dispatch( getOperations() )
+  }, [dispatch])
 
   return (
     <Fragment>
@@ -36,10 +47,10 @@ const ProductTabs = ({ active, toggleTab }) => {
       </Nav>
       <TabContent activeTab={active}>
         <TabPane tabId='1'>
-        <ProductItemLines type = 'SALE'/>
+          {purchases} 
         </TabPane>
         <TabPane tabId='2'>
-          <ProductItemLines type = 'PURCHASE'/>
+          {sales} 
         </TabPane>
       </TabContent>
     </Fragment>
@@ -47,4 +58,4 @@ const ProductTabs = ({ active, toggleTab }) => {
 
 }
 
-export default ProductTabs
+export default OperationTabs

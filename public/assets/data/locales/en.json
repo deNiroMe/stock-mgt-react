@@ -26,6 +26,7 @@
   "app.sidebar.benifits": "Benefits",
   "app.sidebar.purchases": "Purchases",
   "app.sidebar.payments": "Payments",
+  "app.sidebar.create_payment": "New Paymentt",
   "app.sidebar.new_purchase": "New Purchase",
   "app.sidebar.clients": "Clients",
   "app.sidebar.suppliers": "Suppliers",
@@ -64,6 +65,7 @@
   "cart.swal.error.title" : "Cancelled", 
   "cart.swal.error.text" : "Cancelled Creation", 
   "cart.swal.error.confirmButtonText" : "Ok",
+  "products.add.swal.error.title" : "Product add Error", 
 
   "cart.purchase.form.product.name" : "Select Product",
   "cart.purchase.form.product.quantity" : "Quantity",

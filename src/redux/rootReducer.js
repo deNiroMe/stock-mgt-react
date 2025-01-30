@@ -1,8 +1,7 @@
 // ** Reducers Imports
 import layout from "./layout"
 import navbar from "./navbar"
-import products from "../views/Products/store"
-import statementLine from "../views/Products/ProductStatementLine/store"
+import products from "../views/Products/store/products"
 import items from "../views/ItemLines/store"
 import clients from "../views/Clients/store"
 import suppliers from "../views/Suppliers/store"
@@ -11,13 +10,14 @@ import invoices from "../views/Sales/store"
 import purchases from "../views/Purchases/store"
 import payments from "../views/Payments/store"
 
+import operations from "../views/Products/store/operations"
+
 import users from "../views/Users/store"
 
 const rootReducer = { 
     navbar, 
     layout, 
     products,
-    statementLine,
     items,
     clients,
     suppliers,
@@ -25,7 +25,8 @@ const rootReducer = {
     invoices,
     purchases,
     payments,
-    users
+    users,
+    operations
 }
 
 export default rootReducer

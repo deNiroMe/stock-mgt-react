@@ -1,9 +1,6 @@
 // ** React Imports
 import { useState, Fragment } from 'react'
 
-// ** translation
-import { useTranslation } from 'react-i18next'
-
 // ** Reactstrap Imports
 import { Card, CardBody, Button, Badge, Row } from 'reactstrap'
 
@@ -12,15 +9,16 @@ import Swal from 'sweetalert2'
 import { Check, Briefcase } from 'react-feather'
 import withReactContent from 'sweetalert2-react-content'
 
-// ** Custom Components
-import Avatar from '@components/avatar'
+// ** translation
+import { useTranslation } from 'react-i18next'
 
 // ** Store & Actions
-import { remove, setElementToEdit } from '../../store'
 import { useDispatch } from 'react-redux'
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"
+import { remove, setElementToEdit } from '../../store/products'
 
-// * Compenents 
+// ** Custom Compenents 
+import Avatar from '@components/avatar'
 import { EditProduct } from '../../Modal/EditProduct'
 
 // ** Styles
@@ -28,17 +26,14 @@ import '@styles/react/libs/react-select/_react-select.scss'
 
 const InfoCard = ({ products, product }) => {
 
-  const { t } = useTranslation()
-
-  const navigate = useNavigate()
-
+  // ** State
+  const [show, setShow] = useState(false)
   const MySwal = withReactContent(Swal)
 
-  // Modal 
-  const [show, setShow] = useState(false)
-
-  // ** Store Vars
+  // ** Store
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const handleSuspendedClick = () => {
     return MySwal.fire({
@@ -56,23 +51,35 @@ const InfoCard = ({ products, product }) => {
       if (result.value) {
         dispatch(
           remove(product.id)
-        )
-        MySwal.fire({
-          icon: 'success',
-          title: t('products.swal.success.title'),
-          text: t('products.swal.success.text'),
-          confirmButtonText: t('products.swal.success.confirmButtonText'),
-          customClass: {
-            confirmButton: 'btn btn-success'
+        ).then((action) => {
+          if (action.payload.showError !== true) {
+            MySwal.fire({
+              icon: 'success',
+              title: t('products.swal.success.title'),
+              text: t('products.swal.success.text'),
+              confirmButtonText: t('products.swal.success.confirmButtonText'),
+              customClass: {
+                confirmButton: 'btn btn-success'
+              }
+            }).then(function () { navigate("/products"); })
+          } else {
+            MySwal.fire({
+              title: t('products.swal.error.title'),
+              text: t('products.swal.error.text'),
+              icon: 'error',
+              customClass: {
+                confirmButton: 'btn btn-danger'
+              }
+            })
           }
-        }).then(function () { navigate("/products"); })
+        })
       } else if (result.dismiss === MySwal.DismissReason.cancel) {
         MySwal.fire({
           title: t('products.swal.error.title'),
           text: t('products.swal.error.text'),
           icon: 'error',
           customClass: {
-            confirmButton: 'btn btn-success'
+            confirmButton: 'btn btn-danger'
           }
         })
       }
@@ -80,7 +87,6 @@ const InfoCard = ({ products, product }) => {
   }
 
   const editProduct = () => {
-    console.log(product)
     dispatch(
       setElementToEdit(product.id)
     )
@@ -164,9 +170,10 @@ const InfoCard = ({ products, product }) => {
                   <li className='mb-75'>
                     <span className='fw-bolder me-25'>{t('products.card.suppliers')}</span>
                     <span className='float-end pe-2'>
-                      {product
-                        .suppliers
-                        .map(s => <span><Badge className='text-capitalize' color='light-secondary' pill>{s.name}</Badge></span>)
+                      { 
+                        product
+                          ?.suppliers
+                          ?.map((s, index) => <span key={index}><Badge className='text-capitalize' color='light-secondary' pill>{s.name}</Badge></span>)
                       }
                     </span>
                   </li>
