@@ -1,7 +1,8 @@
 // ** Redux Imports
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
-import { data } from '../data/data'
+// ** axios 
+import axios from 'axios'
 
 export const toggleSidebar = createAsyncThunk(
   'suppliers/toggleSidebar', 
@@ -13,78 +14,101 @@ export const toggleSidebar = createAsyncThunk(
 
 export const setElementToEdit = createAsyncThunk(
   'suppliers/setElementToEdit', 
-  async (clientId) => {
-    let sidebarOpen = true
-    let client = data.suppliers.find(c => c.id == clientId)
-    if(client == null) {
-      sidebarOpen = false
-      toEditSupplier =  {}
-    }
-    return {
-      toEditSupplier: client,
-      sidebarOpen: sidebarOpen
-    }
+    async (supplierId, { getState }) => { 
+      const suppliers = getState().suppliers.suppliers
+      let sidebarOpen = true
+      let supplier = suppliers.find(c => c.id == supplierId)
+      if(supplier == null) {
+        sidebarOpen = false
+        toEditSupplier =  {}
+      }
+      return {
+        toEditSupplier: supplier,
+        sidebarOpen: sidebarOpen
+      }
 })
 
 export const find = createAsyncThunk(
   'suppliers/find', 
-  async (id) => {
-    let client = data.suppliers.find(c => c.id == id)
+  async (id) => { 
+    const response = await axios.get(`http://localhost:8090/api/v1/suppliers/${id}`) 
+    let supplier = response.data
     return {
-      selectedSupplier: client
+      selectedSupplier: supplier
     }
 })
 
 export const edit = createAsyncThunk(
   'suppliers/edit', 
-  async (client) => {
-    let array = [...data.suppliers]
-    const index = array.findIndex((c => client.id == c.id));
-    array[index] = client
-    data.suppliers = [...array]
-    return {
-      toEditSupplier: {},
-      suppliers: array
+  async (supplier, {dispatch, rejectWithValue}) => {
+    try{
+      const response = await axios.put(`http://localhost:8090/api/v1/suppliers/edit`, supplier)
+      dispatch(getAllData())
+      return {
+        supplier: response.data,
+        toEditSupplier: {},
+        showError: false
+      }
+    }catch(e) {
+      console.log(e)
+      return rejectWithValue({
+        errors:e.response.data,
+        showError: true
+      })
     }
 })
 
 export const add = createAsyncThunk(
   'suppliers/add', 
-  async (client) => {
-    let array = [...data.suppliers]
-    array.push(client)
-    data.suppliers = [...array]
-    return {
-      selectedSupplier: client,
-      suppliers: array
+  async (supplier, {dispatch, rejectWithValue}) => {
+    try{
+      const response = await axios.post(`http://localhost:8090/api/v1/suppliers/add`, supplier)
+      dispatch(getAllData())
+      return {
+        supplier:response.data,
+        showError: false
+      }
+    }catch(e) {
+      return rejectWithValue({
+        errors:e.response.data,
+        showError: true
+      })
     }
 })
 
 export const remove = createAsyncThunk(
   'suppliers/remove', 
-  async (clientId) => {
-    const index = data.suppliers.findIndex(t => t.id === clientId)
-    let array = [...data.suppliers]
-    array.splice(index, 1)
-    data.suppliers = [...array]
-    return {
-      suppliers: array
+  async (supplierId, {dispatch, rejectWithValue}) => {
+    try{
+      await axios.delete(`http://localhost:8090/api/v1/suppliers/remove/${supplierId}`)
+      dispatch(getAllData())
+      return {
+        showError: false
+      }
+    }catch(e) {
+      return rejectWithValue({
+        errors: e.response.data,
+        showError: true
+      })
     }
 })
 
 export const getAllData = createAsyncThunk(
   'suppliers/getAllData', 
   async () => {
+    const response = await axios.get('http://localhost:8090/api/v1/suppliers')
+    console.log(response)
     return { 
-      suppliers: data.suppliers, 
-      total: data.suppliers.length
+      suppliers: response.data,
+      filteredSuppliers: response.data,
+      total: response.data.length
     }
 })
 
 export const getPaginatedData = createAsyncThunk(
   'suppliers/getPaginatedData', 
-  async (config) => { 
-        
+  async (config, { getState }) => { 
+      const suppliers = getState().suppliers.suppliers
       const {
         q = '',
         page = 1,
@@ -93,21 +117,20 @@ export const getPaginatedData = createAsyncThunk(
         sortColumn = 'name'
       } = config      
       
-      const queryLowered = q.toLowerCase()  
-
-      const dataAsc = [...data.suppliers].sort((a, b) => {
+      const queryLowered = q.toLowerCase() 
+      const dataAsc = [...suppliers].sort((a, b) => {
         return (a[sortColumn] < b[sortColumn] ? -1 : 1)
       })
 
       let dataToFilter = sort === 'asc' ? dataAsc : dataAsc.reverse()
       let filteredData = dataToFilter.filter(
-        client => client.name.toLowerCase().includes(queryLowered) 
+        supplier => supplier.name.toLowerCase().includes(queryLowered) 
       )
       let paginateArray = filteredData.slice((page - 1) * perPage, page * perPage)
       
       return {
           total: filteredData.length,
-          suppliers: paginateArray
+          filteredSuppliers: paginateArray
         }    
 })
 
@@ -115,8 +138,10 @@ export const suppliersSlice = createSlice({
   name: 'suppliers',
   initialState: {
     suppliers: [],
+    filteredSuppliers: [],
     selectedSupplier: {},
     toEditSupplier: {},
+    supplier: {},
     params: {},
     total: 1,
     sidebarOpen: false
@@ -126,15 +151,16 @@ export const suppliersSlice = createSlice({
     builder
       .addCase(getAllData.fulfilled, (state, action) => {
         state.suppliers = action.payload.suppliers
+        state.filteredSuppliers = action.payload.filteredSuppliers
         state.total = action.payload.total
       })
-      .addCase(getPaginatedData.fulfilled, (state, action) => {
-        state.suppliers = action.payload.suppliers
+      .addCase(getPaginatedData.fulfilled, (state, action) => {        
+        state.filteredSuppliers = action.payload.filteredSuppliers
         state.total = action.payload.total
         state.params = action.payload.params
       })
       .addCase(add.fulfilled, (state, action) => {
-        state.client = action.payload.client
+        state.supplier = action.payload.supplier
       })
       .addCase(setElementToEdit.fulfilled, (state, action) => {
         state.toEditSupplier = action.payload.toEditSupplier
@@ -144,7 +170,7 @@ export const suppliersSlice = createSlice({
         state.sidebarOpen = action.payload.sidebarOpen
       })
       .addCase(edit.fulfilled, (state, action) => {
-        state.suppliers = action.payload.suppliers
+        state.supplier = action.payload.supplier
         state.toEditSupplier = action.payload.toEditSupplier
 
       })

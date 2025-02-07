@@ -156,16 +156,7 @@ const SuppliersList = () => {
   // ** Get data on mount
   useEffect(() => {
     dispatch( getAllData() )
-    dispatch(      
-      getPaginatedData({
-        sort,
-        sortColumn: sortColumn,
-        q: searchTerm,
-        page: currentPage,
-        perPage: rowsPerPage
-      })      
-    )
-  }, [dispatch, store.suppliers.length, sort, sortColumn, currentPage])
+  }, [dispatch])
 
   // ** Function in get data on page change
   const handlePagination = page => {
@@ -253,7 +244,7 @@ const SuppliersList = () => {
     if (store.suppliers.length === 0 && isFiltered) {
       return []
     } else {
-      return store.suppliers.slice(0, rowsPerPage)
+      return store.filteredSuppliers.slice(0, rowsPerPage)
     }
   }
 
