@@ -1,123 +1,147 @@
 // ** Redux Imports
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
-import { data } from '../data/data'
+// ** axios 
+import axios from 'axios'
+
+const URL = 'http://localhost:8090/api/v1/clients'
 
 export const toggleSidebar = createAsyncThunk(
-  'clients/toggleSidebar', 
-  async (_, {getState}) => {
-    return { 
+  'clients/toggleSidebar',
+  async (_, { getState }) => {
+    return {
       sidebarOpen: !getState().clients.sidebarOpen
     }
-})
+  })
 
 export const setElementToEdit = createAsyncThunk(
-  'clients/setElementToEdit', 
-  async (clientId) => {
+  'clients/setElementToEdit',
+  async (clientId, { getState }) => {
+    const clients = getState().clients.clients
     let sidebarOpen = true
-    let client = data.clients.find(c => c.id == clientId)
-    if(client == null) {
+    let client = clients.find(c => c.id == clientId)
+    if (client == null) {
       sidebarOpen = false
-      toEditClient =  {}
+      toEditClient = {}
     }
     return {
       toEditClient: client,
       sidebarOpen: sidebarOpen
     }
-})
+  })
 
 export const find = createAsyncThunk(
-  'clients/find', 
+  'clients/find',
   async (id) => {
-    let client = data.clients.find(c => c.id == id)
+    const response = await axios.get(`${URL}/${id}`)
+    let client = response.data
     return {
       selectedClient: client
     }
-})
+  })
 
 export const edit = createAsyncThunk(
-  'clients/edit', 
-  async (client) => {
-    let array = [...data.clients]
-    const index = array.findIndex((c => client.id == c.id));
-    array[index] = client
-    data.clients = [...array]
-    return {
-      toEditClient: {},
-      clients: array
+  'clients/edit',
+  async (client, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axios.put(`${URL}/edit`, client)
+      dispatch(getAllData())
+      return {
+        client: response.data,
+        toEditClient: {},
+        showError: false
+      }
+    } catch (e) {
+      return rejectWithValue({
+        errors: e.response.data,
+        showError: true
+      })
     }
-})
+  })
 
 export const add = createAsyncThunk(
-  'clients/add', 
-  async (client) => {
-    let array = [...data.clients]
-    array.push(client)
-    data.clients = [...array]
-    return {
-      selectedClient: client,
-      clients: array
+  'clients/add',
+  async (client, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${URL}/add`, client)
+      dispatch(getAllData())
+      return {
+        client: response.data,
+        showError: false
+      }
+    } catch (e) {
+      return rejectWithValue({
+        errors: e.response.data,
+        showError: true
+      })
     }
-})
+  })
 
 export const remove = createAsyncThunk(
-  'clients/remove', 
-  async (clientId) => {
-    const index = data.clients.findIndex(t => t.id === clientId)
-    let array = [...data.clients]
-    array.splice(index, 1)
-    data.clients = [...array]
-    return {
-      clients: array
+  'clients/remove',
+  async (clientId, { dispatch, rejectWithValue }) => {
+    try {
+      await axios.delete(`${URL}/remove/${clientId}`)
+      dispatch(getAllData())
+      return {
+        showError: false
+      }
+    } catch (e) {
+      return rejectWithValue({
+        errors: e.response.data,
+        showError: true
+      })
     }
-})
+  })
 
 export const getAllData = createAsyncThunk(
-  'clients/getAllData', 
+  'clients/getAllData',
   async () => {
-    return { 
-      clients: data.clients, 
-      total: data.clients.length
+    const response = await axios.get(`${URL}`)
+    return {
+      clients: response.data,
+      filteredClients: response.data,
+      total: response.data.length
     }
-})
+  })
 
 export const getPaginatedData = createAsyncThunk(
-  'clients/getPaginatedData', 
-  async (config) => { 
-        
-      const {
-        q = '',
-        page = 1,
-        perPage = 10,
-        sort = 'asc',
-        sortColumn = 'name'
-      } = config      
-      
-      const queryLowered = q.toLowerCase()  
+  'clients/getPaginatedData',
+  async (config, { getState }) => {
+    const clients = getState().clients.clients
+    const {
+      q = '',
+      page = 1,
+      perPage = 10,
+      sort = 'asc',
+      sortColumn = 'name'
+    } = config
 
-      const dataAsc = [...data.clients].sort((a, b) => {
-       // console.log(a[sortColumn], b[sortColumn])
-        return (a[sortColumn] < b[sortColumn] ? -1 : 1)
-      })
+    const queryLowered = q.toLowerCase()
+    const dataAsc = [...clients].sort((a, b) => {
+      return (a[sortColumn] < b[sortColumn] ? -1 : 1)
+    })
 
-      let dataToFilter = sort === 'asc' ? dataAsc : dataAsc.reverse()
-      let filteredData = dataToFilter.filter(
-        client => client.name.toLowerCase().includes(queryLowered) 
-      )
-      let paginateArray = filteredData.slice((page - 1) * perPage, page * perPage)
-      
-      return {
-          total: filteredData.length,
-          clients: paginateArray
-        }    
-})
+    let dataToFilter = sort === 'asc' ? dataAsc : dataAsc.reverse()
+    let filteredData = dataToFilter.filter(
+      client => client.name.toLowerCase().includes(queryLowered)
+    )
+    let paginateArray = filteredData.slice((page - 1) * perPage, page * perPage)
+
+    return {
+      total: filteredData.length,
+      filteredClients: paginateArray
+    }
+  })
 
 export const clientsSlice = createSlice({
   name: 'clients',
   initialState: {
     clients: [],
+    filteredClients: [],
     selectedClient: {},
     toEditClient: {},
+    client:{},
     params: {},
     total: 1,
     sidebarOpen: false
@@ -127,10 +151,11 @@ export const clientsSlice = createSlice({
     builder
       .addCase(getAllData.fulfilled, (state, action) => {
         state.clients = action.payload.clients
+        state.filteredClients = action.payload.filteredClients
         state.total = action.payload.total
       })
-      .addCase(getPaginatedData.fulfilled, (state, action) => {
-        state.clients = action.payload.clients
+      .addCase(getPaginatedData.fulfilled, (state, action) => {        
+        state.filteredClients = action.payload.filteredClients
         state.total = action.payload.total
         state.params = action.payload.params
       })
@@ -140,7 +165,7 @@ export const clientsSlice = createSlice({
       .addCase(setElementToEdit.fulfilled, (state, action) => {
         state.toEditClient = action.payload.toEditClient
         state.sidebarOpen = action.payload.sidebarOpen
-      })      
+      })
       .addCase(toggleSidebar.fulfilled, (state, action) => {
         state.sidebarOpen = action.payload.sidebarOpen
       })

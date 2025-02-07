@@ -165,7 +165,7 @@ const ClientsList = () => {
         perPage: rowsPerPage
       })      
     )
-  }, [dispatch, store.clients.length, sort, sortColumn, currentPage])
+  }, [dispatch])
 
   // ** Function in get data on page change
   const handlePagination = page => {
@@ -174,7 +174,7 @@ const ClientsList = () => {
         sort: sort,
         sortColumn: sortColumn,
         q: searchTerm,
-        page: currentPage,
+        page: page.selected + 1,
         perPage: rowsPerPage
       })      
     )
@@ -190,7 +190,7 @@ const ClientsList = () => {
         sortColumn,
         q: searchTerm,
         page: currentPage,
-        perPage: rowsPerPage
+        perPage: value
       })      
     )
     setRowsPerPage(value)
@@ -216,6 +216,37 @@ const ClientsList = () => {
     )
   }
 
+   // ** Table data to render
+   const dataToRender = () => {
+    const filters = {
+      q: searchTerm
+    }
+
+    const isFiltered = Object.keys(filters).some(function (k) {
+      return filters[k].length > 0
+    })
+
+    if (store.clients.length === 0 && isFiltered) {
+      return []
+    } else {
+      return store.filteredClients.slice(0, rowsPerPage)
+    }
+  }
+
+  const handleSort = (column, sortDirection) => {
+    setSort(sortDirection)
+    setSortColumn(column.sortField)
+    dispatch(      
+      getPaginatedData({
+        sort,
+        sortColumn,
+        q: searchTerm,
+        page: currentPage,
+        perPage: rowsPerPage
+      })      
+    )
+  }
+
   // ** Custom Pagination
   const CustomPagination = () => {
     
@@ -237,37 +268,6 @@ const ClientsList = () => {
         pageLinkClassName={'page-link'}
         containerClassName={'pagination react-paginate justify-content-end my-2 pe-1'}
       />
-    )
-  }
-
-  // ** Table data to render
-  const dataToRender = () => {
-    const filters = {
-      q: searchTerm
-    }
-
-    const isFiltered = Object.keys(filters).some(function (k) {
-      return filters[k].length > 0
-    })
-
-    if (store.clients.length === 0 && isFiltered) {
-      return []
-    } else {
-      return store.clients.slice(0, rowsPerPage)
-    }
-  }
-
-  const handleSort = (column, sortDirection) => {
-    setSort(sortDirection)
-    setSortColumn(column.sortField)
-    dispatch(      
-      getPaginatedData({
-        sort,
-        sortColumn,
-        q: searchTerm,
-        page: currentPage,
-        perPage: rowsPerPage
-      })      
     )
   }
 
