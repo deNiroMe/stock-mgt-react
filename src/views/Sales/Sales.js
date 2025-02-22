@@ -73,7 +73,7 @@ const Sales = () => {
   const [sort, setSort] = useState('desc')
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [sortColumn, setSortColumn] = useState('name')
+  const [sortColumn, setSortColumn] = useState('reference')
   const [rowsPerPage, setRowsPerPage] = useState(10)
 
   // ** Store Vars
@@ -144,8 +144,15 @@ const Sales = () => {
 
   // ** Get data on mount
   useEffect(() => {
-    dispatch(
-      getAllData()
+    dispatch( getAllData() )
+    dispatch(      
+      getPaginatedData({
+        sort,
+        sortColumn: sortColumn,
+        q: searchTerm,
+        page: currentPage,
+        perPage: rowsPerPage
+      })      
     )
   }, [dispatch])
 
@@ -162,7 +169,9 @@ const Sales = () => {
     if (store.invoices.length === 0 && isFiltered) {
       return []
     } else {
-      return store.invoices.slice(0, rowsPerPage)
+      console.log(rowsPerPage)
+      console.log(store.filteredInvoices)
+      return store.filteredInvoices.slice(0, rowsPerPage)
     }
   }
 
@@ -172,7 +181,7 @@ const Sales = () => {
         sort: sort,
         sortColumn: sortColumn,
         q: searchTerm,
-        page: currentPage,
+        page: page.selected + 1,
         perPage: rowsPerPage
       })      
     )
@@ -187,7 +196,7 @@ const Sales = () => {
         sortColumn,
         q: searchTerm,
         page: currentPage,
-        perPage: rowsPerPage
+        perPage: value
       })      
     )
     setRowsPerPage(value)
@@ -248,10 +257,12 @@ const Sales = () => {
       <Card className='overflow-hidden'>
         <div className='react-dataTable'>
           <DataTable
-            noHeader         
+            noHeader
             subHeader
+            sortServer
             pagination
-            responsive 
+            responsive
+            paginationServer
             columns={columns}
             data={dataToRender()}
             onSort={handleSort}
