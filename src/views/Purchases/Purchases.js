@@ -73,7 +73,7 @@ const Purchases = () => {
   const [sort, setSort] = useState('desc')
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [sortColumn, setSortColumn] = useState('name')
+  const [sortColumn, setSortColumn] = useState('id')
   const [rowsPerPage, setRowsPerPage] = useState(10)
 
   // ** Store Vars
@@ -87,7 +87,7 @@ const Purchases = () => {
       name: t('purchases.table.reference'),
       width: '20%',
       sortable: true,
-      selector: row => row.reference
+      selector: row => `REF00${row.id}`
     },
     {
       name: t('purchases.table.date'),
@@ -147,6 +147,15 @@ const Purchases = () => {
     dispatch(
       getAllData()
     )
+    dispatch(      
+          getPaginatedData({
+            sort,
+            sortColumn: sortColumn,
+            q: searchTerm,
+            page: currentPage,
+            perPage: rowsPerPage
+          })      
+        )
   }, [dispatch])
 
   // ** Table data to render
@@ -162,7 +171,9 @@ const Purchases = () => {
     if (store.purchases.length === 0 && isFiltered) {
       return []
     } else {
-      return store.purchases.slice(0, rowsPerPage)
+      
+      console.log(rowsPerPage)
+      return store.filteredPurchases.slice(0, rowsPerPage)
     }
   }
 
@@ -172,7 +183,7 @@ const Purchases = () => {
         sort: sort,
         sortColumn: sortColumn,
         q: searchTerm,
-        page: currentPage,
+        page: page.selected + 1,
         perPage: rowsPerPage
       })      
     )
@@ -187,7 +198,7 @@ const Purchases = () => {
         sortColumn,
         q: searchTerm,
         page: currentPage,
-        perPage: rowsPerPage
+        perPage: value
       })      
     )
     setRowsPerPage(value)
@@ -248,10 +259,12 @@ const Purchases = () => {
       <Card className='overflow-hidden'>
         <div className='react-dataTable'>
           <DataTable
-            noHeader         
+            noHeader
             subHeader
+            sortServer
             pagination
-            responsive 
+            responsive
+            paginationServer
             columns={columns}
             data={dataToRender()}
             onSort={handleSort}

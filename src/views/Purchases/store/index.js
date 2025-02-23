@@ -1,26 +1,36 @@
 // ** Redux Imports
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
-import { data } from '../data/data'
+// ** axios 
+import axios from 'axios'
+
+const URL = 'http://localhost:8090/api/v1/purchases'
 
 export const find = createAsyncThunk(
   'purchases/find', 
-  async (id) => {    
-    let purchase = data.purchases.find(c => c.id == id)
-    console.log(purchase)
+  async (id) => {  
+    const response = await axios.get(`${URL}/${id}`)
+    let purchase = response.data
     return {
       purchase: purchase
-    }
+    } 
 })
 
 export const add = createAsyncThunk(
   'purchases/add', 
-  async (order) => {
-    let array = [...data.purchases]
-    array.push(order)
-    data.purchases = [...array]
-    return {
-      purchases: array
+  async (purchases, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${URL}/add`, purchases)
+      dispatch(getAllData())
+      return {
+        purchases: response.purchase,
+        showError: false
+      }
+    } catch (e) {
+      return rejectWithValue({
+        errors: e.response.data,
+        showError: true
+      })
     }
 })
 
@@ -28,47 +38,49 @@ export const add = createAsyncThunk(
 export const getAllData = createAsyncThunk(
   'purchases/getAllData', 
   async () => {
-    return { 
-      purchases: data.purchases, 
-      total: data.purchases.length
+    const response = await axios.get(`${URL}`)
+    return {
+      purchases: response.data,
+      filteredPurchases: response.data,
+      total: response.data.length
     }
 })
 
 export const getPaginatedData = createAsyncThunk(
   'purchases/getPaginatedData', 
-  async (config) => { 
-        
-      const {
-        q = '',
-        page = 1,
-        perPage = 10,
-        sort = 'asc',
-        sortColumn = 'name'
-      } = config      
-      
-      const queryLowered = q.toLowerCase()  
+  async (config, { getState }) => {
+    const purchases = getState().purchases.purchases
+    const {
+      q = '',
+      page = 1,
+      perPage = 10,
+      sort = 'desc',
+      sortColumn = 'reference'
+    } = config
 
-      const dataAsc = [...data.purchases].sort((a, b) => {
-        return (a[sortColumn] < b[sortColumn] ? -1 : 1)
-      })
+    const queryLowered = q.toLowerCase()
+    const dataAsc = [...purchases].sort((a, b) => {
+      return (a[sortColumn] < b[sortColumn] ? -1 : 1)
+    })
 
-      let dataToFilter = sort === 'asc' ? dataAsc : dataAsc.reverse()
-      let filteredData = dataToFilter.filter(
-        purchase => purchase.reference.toLowerCase().includes(queryLowered) 
-      )
-      
-      let paginateArray = filteredData.slice((page - 1) * perPage, page * perPage)
-      
-      return {
-          total: filteredData.length,
-          purchases: paginateArray
-        }    
+    let dataToFilter = sort === 'asc' ? dataAsc : dataAsc.reverse()
+    let filteredData = dataToFilter.filter(
+      p => p.reference.toLowerCase().includes(queryLowered)
+    )
+    let paginateArray = filteredData.slice((page - 1) * perPage, page * perPage)
+    console.log(paginateArray)
+    return {
+      total: purchases.length,
+      filteredPurchases: paginateArray,
+      params: config
+    }  
 })
 
 export const purchasesSlice = createSlice({
   name: 'purchases',
   initialState: {
     purchases: [],
+    filteredPurchases: [],
     purchase: {
       supplier: {},
       salesPerson: {}
@@ -81,13 +93,14 @@ export const purchasesSlice = createSlice({
     builder
       .addCase(getAllData.fulfilled, (state, action) => {
         state.purchases = action.payload.purchases
+        state.filteredPurchases = action.payload.filteredPurchases
         state.total = action.payload.total
       })
       .addCase(add.fulfilled, (state, action) => {
         state.purchases = action.payload.purchases
       })
       .addCase(getPaginatedData.fulfilled, (state, action) => {
-        state.purchases = action.payload.purchases
+        state.filteredPurchases = action.payload.filteredPurchases
         state.total = action.payload.total
         state.params = action.payload.params
       })
