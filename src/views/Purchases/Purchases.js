@@ -171,8 +171,6 @@ const Purchases = () => {
     if (store.purchases.length === 0 && isFiltered) {
       return []
     } else {
-      
-      console.log(rowsPerPage)
       return store.filteredPurchases.slice(0, rowsPerPage)
     }
   }

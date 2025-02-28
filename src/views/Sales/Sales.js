@@ -169,8 +169,6 @@ const Sales = () => {
     if (store.invoices.length === 0 && isFiltered) {
       return []
     } else {
-      console.log(rowsPerPage)
-      console.log(store.filteredInvoices)
       return store.filteredInvoices.slice(0, rowsPerPage)
     }
   }

@@ -4,6 +4,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 // ** axios 
 import axios from 'axios'
 
+const URL = 'http://localhost:8090/api/v1/suppliers'
+
 export const toggleSidebar = createAsyncThunk(
   'suppliers/toggleSidebar', 
   async (_, {getState}) => {
@@ -31,7 +33,7 @@ export const setElementToEdit = createAsyncThunk(
 export const find = createAsyncThunk(
   'suppliers/find', 
   async (id) => { 
-    const response = await axios.get(`http://localhost:8090/api/v1/suppliers/${id}`) 
+    const response = await axios.get(`${URL}/${id}`) 
     let supplier = response.data
     return {
       selectedSupplier: supplier
@@ -42,7 +44,7 @@ export const edit = createAsyncThunk(
   'suppliers/edit', 
   async (supplier, {dispatch, rejectWithValue}) => {
     try{
-      const response = await axios.put(`http://localhost:8090/api/v1/suppliers/edit`, supplier)
+      const response = await axios.put(`${URL}/edit`, supplier)
       dispatch(getAllData())
       return {
         supplier: response.data,
@@ -50,7 +52,6 @@ export const edit = createAsyncThunk(
         showError: false
       }
     }catch(e) {
-      console.log(e)
       return rejectWithValue({
         errors:e.response.data,
         showError: true
@@ -62,7 +63,7 @@ export const add = createAsyncThunk(
   'suppliers/add', 
   async (supplier, {dispatch, rejectWithValue}) => {
     try{
-      const response = await axios.post(`http://localhost:8090/api/v1/suppliers/add`, supplier)
+      const response = await axios.post(`${URL}/add`, supplier)
       dispatch(getAllData())
       return {
         supplier:response.data,
@@ -80,7 +81,7 @@ export const remove = createAsyncThunk(
   'suppliers/remove', 
   async (supplierId, {dispatch, rejectWithValue}) => {
     try{
-      await axios.delete(`http://localhost:8090/api/v1/suppliers/remove/${supplierId}`)
+      await axios.delete(`${URL}/remove/${supplierId}`)
       dispatch(getAllData())
       return {
         showError: false
@@ -96,8 +97,7 @@ export const remove = createAsyncThunk(
 export const getAllData = createAsyncThunk(
   'suppliers/getAllData', 
   async () => {
-    const response = await axios.get('http://localhost:8090/api/v1/suppliers')
-    console.log(response)
+    const response = await axios.get(URL)
     return { 
       suppliers: response.data,
       filteredSuppliers: response.data,

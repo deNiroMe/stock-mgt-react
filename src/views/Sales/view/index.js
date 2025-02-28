@@ -27,7 +27,7 @@ const InvoicePreview = () => {
   // * Store
   const dispatch = useDispatch()
   const store = useSelector(state => state.invoices)
-  const items = useSelector(state => state.statementLine)
+  const items = useSelector(state => state.operations)
 
   // ** States
   const [sendSidebarOpen, setSendSidebarOpen] = useState(false)
@@ -47,7 +47,7 @@ const InvoicePreview = () => {
     <div className='invoice-preview-wrapper'>
       <Row className='invoice-preview'>
         <Col xl={9} md={8} sm={12}>
-          <PreviewCard invoice={store.invoice} items={items.statementLines} />
+          <PreviewCard invoice={store.invoice} items={items.filteredSales} />
         </Col>
         <Col xl={3} md={4} sm={12}>
           <PreviewActions id={id} setSendSidebarOpen={setSendSidebarOpen} setAddPaymentOpen={setAddPaymentOpen} />

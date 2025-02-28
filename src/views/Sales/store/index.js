@@ -68,7 +68,7 @@ export const getPaginatedData = createAsyncThunk(
       order => order.reference.toLowerCase().includes(queryLowered)
     )
     let paginateArray = filteredData.slice((page - 1) * perPage, page * perPage)
-    console.log(paginateArray)
+    
     return {
       total: orders.length,
       filteredInvoices: paginateArray,
