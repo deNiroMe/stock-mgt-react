@@ -156,7 +156,7 @@ const Payments = () => {
     if (store.payments.length === 0 && isFiltered) {
       return []
     } else {
-      return store.payments.slice(0, rowsPerPage)
+      return store.filteredPayments.slice(0, rowsPerPage)
     }
   }
 
@@ -166,7 +166,7 @@ const Payments = () => {
         sort: sort,
         sortColumn: sortColumn,
         q: searchTerm,
-        page: currentPage,
+        page: page.selected + 1,
         perPage: rowsPerPage
       })      
     )
@@ -181,7 +181,7 @@ const Payments = () => {
         sortColumn,
         q: searchTerm,
         page: currentPage,
-        perPage: rowsPerPage
+        perPage: value
       })      
     )
     setRowsPerPage(value)
@@ -244,8 +244,10 @@ const Payments = () => {
           <DataTable
             noHeader         
             subHeader
+            sortServer
             pagination
-            responsive 
+            responsive
+            paginationServer
             columns={columns}
             data={dataToRender()}
             onSort={handleSort}
