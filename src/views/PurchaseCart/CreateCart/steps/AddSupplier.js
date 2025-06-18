@@ -43,7 +43,7 @@ const AddSupplier = () => {
       return { value: p.id, label: p.name }
     })
     setOptions(options)
-  }, [dispatch, store.suppliers])
+  }, [dispatch])
 
   const onSubmit = data => {
     // TO DO validate data

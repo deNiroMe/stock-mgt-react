@@ -43,7 +43,7 @@ const AddClient = () => {
       return { value: p.id, label: p.name }
     })
     setOptions(options)
-  }, [dispatch, store.clients])
+  }, [dispatch])
 
   const onSubmit = data => {
     // TO DO validate data

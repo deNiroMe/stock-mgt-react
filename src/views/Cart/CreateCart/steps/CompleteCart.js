@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 // ** Store & Actions
 import { addCartDetails } from '../../store/index'
+import { addCart } from '../../store/index'
 //import { addAll } from '../../../Products/ProductStatementLine/store'
 import { add as addInvoice } from '../../../Sales/store'
 import { useSelector, useDispatch } from 'react-redux'
@@ -101,7 +102,8 @@ const CompleteCart = () => {
         console.log(list)
         console.log(a)
         // dispatch( addAll(list) )
-        dispatch( addInvoice(a) )        
+        dispatch(addCart())
+        //dispatch( addInvoice(a) )        
         MySwal.fire({
           icon: 'success',
           title: t('cart.swal.success.title'),
