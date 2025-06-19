@@ -88,9 +88,9 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "test": "craco test",
+    "start": "npx craco start",
+    "build": "npx craco build",
+    "test": "npx craco test",
     "eject": "react-scripts eject",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "eslint src/**/*.js src/**/*.js",
