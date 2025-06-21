@@ -124,11 +124,15 @@
   },
   "resolutions": {
     "react-error-overlay": "6.0.9",
-    "postcss-custom-properties": "10.0.0"
+    "postcss-custom-properties": "10.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@pmmmwh/react-refresh-webpack-plugin": "0.3.3"
   },
   "overrides": {
     "react-error-overlay": "6.0.9",
-    "postcss-custom-properties": "10.0.0"
+    "postcss-custom-properties": "10.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@pmmmwh/react-refresh-webpack-plugin": "0.3.3"
   },
   "homepage": ""
 }
